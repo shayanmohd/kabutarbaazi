@@ -1,0 +1,11 @@
+project_id = "kabutarbaazi"
+
+[functions.media-upload-url]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true
+
+# The messages-insert Database Webhook calls this with a shared secret header, not a user JWT.
+[functions.notify-message]
+verify_jwt = false

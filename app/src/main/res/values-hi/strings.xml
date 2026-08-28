@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Hindi. Written in the register kabutarbaaz actually use, which mixes Devanagari with common
+  Urdu-origin words (daam, shauk, jodi). A stiff literary translation would read as foreign to
+  the exact audience this app is for.
+
+  NOT machine-translated. A native speaker should still review before launch, especially the
+  community rules and report reasons, because those are what a Play reviewer reads.
+-->
+<resources>
+    <string name="tagline">कबूतर खरीदो, बेचो, और अपने शौक़ के लोगों से जुड़ो</string>
+
+    <string name="tab_bazaar">बाज़ार</string>
+    <string name="tab_reels">रील्स</string>
+    <string name="tab_groups">ग्रुप</string>
+    <string name="tab_chats">चैट</string>
+
+    <string name="username">यूज़रनेम</string>
+    <string name="password">पासवर्ड</string>
+    <string name="your_name">आपका नाम</string>
+    <string name="whatsapp_number">व्हाट्सऐप नंबर</string>
+    <string name="your_area">आपका इलाक़ा</string>
+    <string name="log_in">लॉग इन करें</string>
+    <string name="create_account">खाता बनाएं</string>
+    <string name="new_here">नए हैं? खाता बनाएं</string>
+    <string name="have_account">पहले से खाता है? लॉग इन करें</string>
+    <string name="no_password_reset">पासवर्ड रीसेट अभी उपलब्ध नहीं है, इसलिए अपना पासवर्ड संभाल कर रखें।</string>
+    <string name="phone_hint">ख़रीदार इसी पर संपर्क करेंगे। जब तक आप न चाहें, नंबर छिपा रहता है।</string>
+
+    <string name="search_hint">कबूतर, नस्ल, शहर खोजें</string>
+    <string name="filter_all">सभी</string>
+    <string name="post_an_ad">विज्ञापन डालें</string>
+    <string name="empty_bazaar_title">अभी कोई विज्ञापन नहीं है</string>
+    <string name="empty_bazaar_body">पहला विज्ञापन आप डालें। अपने कबूतर की फ़ोटो लगाएं और दाम लिखें।</string>
+
+    <string name="message">मैसेज</string>
+    <string name="whatsapp">व्हाट्सऐप</string>
+    <string name="negotiable">दाम में बात हो सकती है</string>
+    <string name="mark_sold">बिक गया</string>
+    <string name="delete_ad">विज्ञापन हटाएं</string>
+    <string name="report_ad">इस विज्ञापन की शिकायत करें</string>
+    <string name="block_seller">इस विक्रेता को ब्लॉक करें</string>
+
+    <string name="upload_reel">रील डालें</string>
+    <string name="empty_reels_title">अभी कोई रील नहीं है</string>
+    <string name="empty_reels_body">अपने कबूतरों की वीडियो डालें। सबसे पहली रील आपकी हो।</string>
+    <string name="follow">फ़ॉलो करें</string>
+    <string name="following">फ़ॉलो कर रहे हैं</string>
+    <string name="for_you">आपके लिए</string>
+
+    <string name="join">जुड़ें</string>
+    <string name="joined">जुड़ गए</string>
+    <string name="write_something">कुछ लिखें…</string>
+    <string name="post">पोस्ट करें</string>
+
+    <string name="empty_chats_title">कोई बातचीत नहीं</string>
+    <string name="empty_chats_body">किसी विज्ञापन पर मैसेज दबाएं और सीधे विक्रेता से बात करें।</string>
+    <string name="write_message">मैसेज लिखें</string>
+
+    <string name="settings">सेटिंग</string>
+    <string name="language">भाषा</string>
+    <string name="blocked_people">ब्लॉक किए लोग</string>
+    <string name="community_rules">कम्युनिटी नियम</string>
+    <string name="privacy_policy">प्राइवेसी पॉलिसी</string>
+    <string name="sign_out">साइन आउट</string>
+    <string name="delete_account">मेरा खाता हटाएं</string>
+    <string name="i_agree">मैं सहमत हूं</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="send_report">शिकायत भेजें</string>
+    <string name="retry">फिर कोशिश करें</string>
+</resources>

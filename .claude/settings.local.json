@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//opt/homebrew/Cellar/openjdk@17/17.0.20.1/libexec/openjdk.jdk/Contents/Home/**)",
+      "Bash(/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home/bin/java -version)",
+      "Read(//Library/Java/JavaVirtualMachines/**)",
+      "Read(//Users/sherry/Documents/DEVPROJECTS/BugFix/gradle/wrapper/**)",
+      "Read(//Users/sherry/Documents/DEVPROJECTS/BugFix/**)",
+      "Bash(curl -s --max-time 20 -A \"Mozilla/5.0\" \"https://repo1.maven.org/maven2/io/github/jan-tennert/supabase/functions-kt-jvm/3.1.4/functions-kt-jvm-3.1.4.pom\")",
+      "Bash(curl -s --max-time 20 -A \"Mozilla/5.0\" \"https://repo1.maven.org/maven2/io/github/jan-tennert/supabase/realtime-kt-jvm/3.1.4/realtime-kt-jvm-3.1.4.pom\")"
+    ]
+  }
+}

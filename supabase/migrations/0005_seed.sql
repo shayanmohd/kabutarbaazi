@@ -1,0 +1,43 @@
+-- GENERATED FILE. Do not edit by hand.
+-- Source: domain/src/main/java/com/kabutarbaazi/domain/model/{Breed,Region}.kt
+-- Regenerate: python3 supabase/tools/gen_seed.py
+
+-- regions
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('delhi', 'Delhi', 'दिल्ली', 'دہلی', 0) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('west_up', 'West UP', 'पश्चिमी यूपी', 'مغربی یوپی', 1) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('east_up', 'East UP', 'पूर्वी यूपी', 'مشرقی یوپی', 2) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('punjab', 'Punjab', 'पंजाब', 'پنجاب', 3) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('haryana', 'Haryana', 'हरियाणा', 'ہریانہ', 4) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('bihar', 'Bihar', 'बिहार', 'بہار', 5) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('rajasthan', 'Rajasthan', 'राजस्थान', 'راجستھان', 6) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('mp', 'Madhya Pradesh', 'मध्य प्रदेश', 'مدھیہ پردیش', 7) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('maharashtra', 'Maharashtra', 'महाराष्ट्र', 'مہاراشٹر', 8) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('bengal', 'West Bengal', 'पश्चिम बंगाल', 'مغربی بنگال', 9) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('hyderabad', 'Hyderabad', 'हैदराबाद', 'حیدرآباد', 10) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('pakistan', 'Pakistan', 'पाकिस्तान', 'پاکستان', 11) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into regions (code, name_en, name_hi, name_ur, sort_order) values ('other', 'Other', 'अन्य', 'دیگر', 12) on conflict (code) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+
+-- breeds
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('teddy', 'Teddy', 'टेडी', 'ٹیڈی', 0) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('golden', 'Golden', 'गोल्डन', 'گولڈن', 1) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('sherazi', 'Sherazi', 'शेराज़ी', 'شیرازی', 2) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('lakka', 'Lakka', 'लक्का', 'لکا', 3) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('sialkoti', 'Sialkoti', 'सियालकोटी', 'سیالکوٹی', 4) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('kamagar', 'Kamagar', 'कामगर', 'کامگر', 5) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('banka', 'Banka', 'बांका', 'بانکا', 6) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('rampoori', 'Rampoori', 'रामपुरी', 'رامپوری', 7) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('ferozpori', 'Ferozpori', 'फ़िरोज़पुरी', 'فیروزپوری', 8) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('kalsira', 'Kalsira', 'कालसिरा', 'کالسرا', 9) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('madrasi', 'Madrasi Highflyer', 'मद्रासी', 'مدراسی', 10) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('lahori', 'Lahori', 'लाहौरी', 'لاہوری', 11) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('mookee', 'Mookee', 'मुक्खी', 'مکھی', 12) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('fantail', 'Fantail', 'फैनटेल', 'فین ٹیل', 13) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('jacobin', 'Jacobin', 'जैकोबिन', 'جیکوبن', 14) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('homer', 'Racing Homer', 'होमर', 'ہومر', 15) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('tippler', 'Tippler', 'टिपलर', 'ٹپلر', 16) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+insert into breeds (slug, name_en, name_hi, name_ur, sort_order) values ('other', 'Other', 'अन्य', 'دیگر', 17) on conflict (slug) do update set name_en=excluded.name_en, name_hi=excluded.name_hi, name_ur=excluded.name_ur, sort_order=excluded.sort_order;
+
+-- One community per region, admin-seeded. Users cannot create groups in v1.
+insert into communities (region_code, slug, name_en, name_hi, name_ur)
+select r.code, r.code, r.name_en, r.name_hi, r.name_ur from regions r
+on conflict (region_code) do nothing;

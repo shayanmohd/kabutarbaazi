@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Urdu. Right-to-left: every layout must use Start/End padding, never Left/Right.
+  NOT machine-translated. A native speaker should review before launch.
+-->
+<resources>
+    <string name="tagline">کبوتر خریدیں، بیچیں، اور اپنے شوق کے لوگوں سے جڑیں</string>
+
+    <string name="tab_bazaar">بازار</string>
+    <string name="tab_reels">ریلز</string>
+    <string name="tab_groups">گروپ</string>
+    <string name="tab_chats">چیٹ</string>
+
+    <string name="username">یوزر نیم</string>
+    <string name="password">پاس ورڈ</string>
+    <string name="your_name">آپ کا نام</string>
+    <string name="whatsapp_number">واٹس ایپ نمبر</string>
+    <string name="your_area">آپ کا علاقہ</string>
+    <string name="log_in">لاگ اِن کریں</string>
+    <string name="create_account">اکاؤنٹ بنائیں</string>
+    <string name="new_here">نئے ہیں؟ اکاؤنٹ بنائیں</string>
+    <string name="have_account">پہلے سے اکاؤنٹ ہے؟ لاگ اِن کریں</string>
+    <string name="no_password_reset">پاس ورڈ ری سیٹ ابھی دستیاب نہیں، اس لیے اپنا پاس ورڈ محفوظ رکھیں۔</string>
+    <string name="phone_hint">خریدار اسی پر رابطہ کریں گے۔ نمبر چھپا رہتا ہے۔</string>
+
+    <string name="search_hint">کبوتر، نسل، شہر تلاش کریں</string>
+    <string name="filter_all">سب</string>
+    <string name="post_an_ad">اشتہار لگائیں</string>
+    <string name="empty_bazaar_title">ابھی کوئی اشتہار نہیں</string>
+    <string name="empty_bazaar_body">پہلا اشتہار آپ لگائیں۔ اپنے کبوتر کی تصویر لگائیں اور قیمت لکھیں۔</string>
+
+    <string name="message">پیغام</string>
+    <string name="whatsapp">واٹس ایپ</string>
+    <string name="negotiable">قیمت پر بات ہو سکتی ہے</string>
+    <string name="mark_sold">فروخت ہو گیا</string>
+    <string name="delete_ad">اشتہار حذف کریں</string>
+    <string name="report_ad">اس اشتہار کی شکایت کریں</string>
+    <string name="block_seller">اس بیچنے والے کو بلاک کریں</string>
+
+    <string name="upload_reel">ریل اپ لوڈ کریں</string>
+    <string name="empty_reels_title">ابھی کوئی ریل نہیں</string>
+    <string name="empty_reels_body">اپنے کبوتروں کی ویڈیو لگائیں۔ سب سے پہلی ریل آپ کی ہو۔</string>
+    <string name="follow">فالو کریں</string>
+    <string name="following">فالو کر رہے ہیں</string>
+    <string name="for_you">آپ کے لیے</string>
+
+    <string name="join">شامل ہوں</string>
+    <string name="joined">شامل ہیں</string>
+    <string name="write_something">کچھ لکھیں…</string>
+    <string name="post">پوسٹ کریں</string>
+
+    <string name="empty_chats_title">کوئی گفتگو نہیں</string>
+    <string name="empty_chats_body">کسی اشتہار پر پیغام دبائیں اور سیدھا بیچنے والے سے بات کریں۔</string>
+    <string name="write_message">پیغام لکھیں</string>
+
+    <string name="settings">سیٹنگز</string>
+    <string name="language">زبان</string>
+    <string name="blocked_people">بلاک کیے گئے لوگ</string>
+    <string name="community_rules">کمیونٹی قواعد</string>
+    <string name="privacy_policy">پرائیویسی پالیسی</string>
+    <string name="sign_out">سائن آؤٹ</string>
+    <string name="delete_account">میرا اکاؤنٹ حذف کریں</string>
+    <string name="i_agree">میں متفق ہوں</string>
+    <string name="cancel">منسوخ کریں</string>
+    <string name="send_report">شکایت بھیجیں</string>
+    <string name="retry">دوبارہ کوشش کریں</string>
+</resources>

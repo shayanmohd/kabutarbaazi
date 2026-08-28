@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KabutarBaazi</string>
+    <string name="tagline">Kabutar kharido, becho, aur apne shauk ke logon se judo</string>
+
+    <string name="tab_bazaar">Bazaar</string>
+    <string name="tab_reels">Reels</string>
+    <string name="tab_groups">Groups</string>
+    <string name="tab_chats">Chats</string>
+
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="your_name">Your name</string>
+    <string name="whatsapp_number">WhatsApp number</string>
+    <string name="your_area">Your area</string>
+    <string name="log_in">Log in</string>
+    <string name="create_account">Create account</string>
+    <string name="new_here">New here? Create an account</string>
+    <string name="have_account">Already have an account? Log in</string>
+    <string name="no_password_reset">Password reset is not available yet, so please keep your password safe.</string>
+    <string name="phone_hint">Buyers reach you on this. It stays hidden until you get a message.</string>
+
+    <string name="search_hint">Search kabutar, breed, city</string>
+    <string name="filter_all">All</string>
+    <string name="post_an_ad">Post an ad</string>
+    <string name="empty_bazaar_title">Abhi koi ad nahi hai</string>
+    <string name="empty_bazaar_body">Pehla ad aap post karein. Apne kabutar ki photo lagayein aur daam likhein.</string>
+
+    <string name="message">Message</string>
+    <string name="whatsapp">WhatsApp</string>
+    <string name="negotiable">Negotiable</string>
+    <string name="mark_sold">Mark as sold</string>
+    <string name="delete_ad">Delete this ad</string>
+    <string name="report_ad">Report this ad</string>
+    <string name="block_seller">Block this seller</string>
+
+    <string name="upload_reel">Upload a reel</string>
+    <string name="empty_reels_title">Abhi koi reel nahi hai</string>
+    <string name="empty_reels_body">Apne kabutaron ki video daalein. Sabse pehli reel aap ki ho.</string>
+    <string name="follow">Follow</string>
+    <string name="following">Following</string>
+    <string name="for_you">For you</string>
+
+    <string name="join">Join</string>
+    <string name="joined">Joined</string>
+    <string name="write_something">Kuch likhein…</string>
+    <string name="post">Post</string>
+
+    <string name="empty_chats_title">Koi baat-cheet nahi</string>
+    <string name="empty_chats_body">Kisi ad par Message dabayein aur seedha seller se baat karein.</string>
+    <string name="write_message">Message likhein</string>
+
+    <string name="settings">Settings</string>
+    <string name="language">Language</string>
+    <string name="blocked_people">Blocked people</string>
+    <string name="community_rules">Community rules</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="sign_out">Sign out</string>
+    <string name="delete_account">Delete my account</string>
+    <string name="i_agree">I agree</string>
+    <string name="cancel">Cancel</string>
+    <string name="send_report">Send report</string>
+    <string name="retry">Retry</string>
+</resources>
