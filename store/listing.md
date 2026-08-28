@@ -101,6 +101,24 @@ Privacy policy: https://shayanmohd.github.io/kabutarbaazi/privacy-policy.html
 
 Encrypted in transit: yes. Users can request deletion: yes, in-app and via the web URL.
 
+### Permissions in the shipped AAB
+```
+android.permission.INTERNET
+android.permission.ACCESS_NETWORK_STATE
+android.permission.POST_NOTIFICATIONS
+android.permission.WAKE_LOCK                        <- added by firebase-messaging
+com.google.android.c2dm.permission.RECEIVE          <- added by firebase-messaging
+com.socialsure.kabutarbaazi.DYNAMIC_RECEIVER_...    <- added by firebase-messaging
+```
+There is deliberately **no** `READ_MEDIA_IMAGES` or `READ_MEDIA_VIDEO`: photos and videos are
+chosen through the Android Photo Picker, which needs no permission at all. That is what keeps
+the permissions declaration this short and the Data Safety answers provable.
+
+Verified in the release APK: no `gms/ads`, no `AppMeasurement`, no `FirebaseAnalytics`. The lone
+`firebase-measurement-connector.properties` file is an inert stub shipped inside firebase-common
+and does not mean Analytics is present. Google Analytics was left switched off when the Firebase
+project was created, specifically so the Advertising ID answer could honestly be No.
+
 ### App access credentials for the reviewer
 Login is required, so Google needs a working account. Create one before submitting and paste it
 into the App Access form. Do not commit real credentials to this file.
