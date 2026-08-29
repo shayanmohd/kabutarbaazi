@@ -27,3 +27,4 @@ supabase/.env.local
 
 # Emulator screenshots and scratch
 /store/screenshots/*.png.bak
+docs/PLAY-APP-ACCESS.md
