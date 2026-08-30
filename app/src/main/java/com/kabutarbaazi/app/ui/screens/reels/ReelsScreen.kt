@@ -15,11 +15,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Comment
+import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.outlined.FavoriteBorder
@@ -71,6 +73,13 @@ import com.kabutarbaazi.app.ui.theme.ReelOnVideo
 import com.kabutarbaazi.app.ui.theme.ReelScrim
 import com.kabutarbaazi.domain.feed.ReelWindow
 import com.kabutarbaazi.domain.model.ReportTargetType
+
+/**
+ * Reels render edge to edge, so the scaffold's NavigationBar sits on top of them rather than
+ * pushing them up. Anything anchored to the bottom has to clear that bar itself: navigationBars
+ * insets for the gesture area, plus this for the bar's own height.
+ */
+private val ReelsBottomChrome = 88.dp
 
 @UnstableApi
 @Composable
@@ -186,6 +195,21 @@ fun ReelsScreen(
                 )
             }
         }
+
+        // Upload lives here because the bottom-end corner belongs to the action rail.
+        IconButton(
+            onClick = onUpload,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .statusBarsPadding()
+                .padding(top = 4.dp, end = 4.dp),
+        ) {
+            Icon(
+                Icons.Filled.AddCircleOutline,
+                contentDescription = "Upload a reel",
+                tint = ReelOnVideo,
+            )
+        }
     }
 
     state.commentsFor?.let {
@@ -249,6 +273,15 @@ private fun ReelPage(
             update = { view ->
                 val player = pool.playerFor(index)
                 if (view.player !== player) view.player = player
+                // The content frame only learns its aspect ratio when the player reports the video
+                // size, which for the very first page happens after layout. It then keeps the
+                // wrong width until something forces a re-layout, so the first reel you ever see
+                // sits in a black margin until you swipe away and back. We already know the size
+                // from the row, so set it now and let the player confirm it later.
+                if (reel.width > 0 && reel.height > 0) {
+                    view.findViewById<AspectRatioFrameLayout>(androidx.media3.ui.R.id.exo_content_frame)
+                        ?.setAspectRatio(reel.width.toFloat() / reel.height.toFloat())
+                }
             },
             onRelease = { view ->
                 // Detaching is what actually silences a page that has scrolled away.
@@ -288,7 +321,10 @@ private fun ReelPage(
 
         // Right rail
         Column(
-            Modifier.align(Alignment.BottomEnd).padding(end = 12.dp, bottom = 96.dp),
+            Modifier
+                .align(Alignment.BottomEnd)
+                .navigationBarsPadding()
+                .padding(end = 12.dp, bottom = ReelsBottomChrome),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
@@ -336,8 +372,9 @@ private fun ReelPage(
             Modifier
                 .align(Alignment.BottomStart)
                 .fillMaxWidth(0.75f)
+                .navigationBarsPadding()
                 .background(ReelScrim.copy(alpha = 0.45f))
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp),
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = ReelsBottomChrome),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(

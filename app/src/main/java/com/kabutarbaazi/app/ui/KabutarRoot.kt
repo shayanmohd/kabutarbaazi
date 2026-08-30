@@ -48,6 +48,7 @@ import com.kabutarbaazi.app.ui.screens.market.CreateListingScreen
 import com.kabutarbaazi.app.ui.screens.market.ListingDetailScreen
 import com.kabutarbaazi.app.ui.screens.market.MarketScreen
 import com.kabutarbaazi.app.ui.screens.market.SavedListingsScreen
+import com.kabutarbaazi.app.ui.screens.profile.AccountScreen
 import com.kabutarbaazi.app.ui.screens.profile.ProfileScreen
 import com.kabutarbaazi.app.ui.screens.profile.SettingsScreen
 import com.kabutarbaazi.app.ui.screens.reels.CreateReelScreen
@@ -111,24 +112,16 @@ fun KabutarRoot(
             }
         },
         floatingActionButton = {
-            if (overlayRoute == null) {
-                val action = when (selected) {
-                    TopDestination.Bazaar -> Routes.LISTING_NEW
-                    TopDestination.Reels -> Routes.REEL_NEW
-                    TopDestination.Groups -> null
-                    TopDestination.Chats -> null
-                }
-                if (action != null) {
-                    FloatingActionButton(
-                        onClick = { overlayRoute = action },
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                    ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = if (selected == TopDestination.Reels) "Upload a reel" else "Post an ad",
-                        )
-                    }
+            // Reels deliberately has no FAB. Its own like/comment/more rail is anchored bottom-end
+            // too, so a scaffold FAB lands directly on top of the comment button. Reels carries its
+            // upload action in its top bar instead.
+            if (overlayRoute == null && selected == TopDestination.Bazaar) {
+                FloatingActionButton(
+                    onClick = { overlayRoute = Routes.LISTING_NEW },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Post an ad")
                 }
             }
         },
@@ -212,8 +205,13 @@ private fun Overlay(
             isAdmin = isAdmin,
             onBack = onClose,
             onOpenModeration = { onNavigate(Routes.MODERATION) },
+            onOpenAccount = { onNavigate(Routes.DELETE_ACCOUNT) },
             onSignedOut = onSignedOut,
             onOpenLegal = { onNavigate("legal/$it") },
+        )
+        route == Routes.DELETE_ACCOUNT -> AccountScreen(
+            onBack = { onNavigate(Routes.SETTINGS) },
+            onSignedOut = onSignedOut,
         )
         route == Routes.MODERATION -> ModerationQueueScreen(onBack = { onNavigate(Routes.SETTINGS) })
         route.startsWith("listing/") -> ListingDetailScreen(

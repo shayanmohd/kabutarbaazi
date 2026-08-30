@@ -206,7 +206,7 @@ fun ListingDetailScreen(
                         ) { page ->
                             val m = l.media.sortedBy { it.position }[page]
                             AsyncImage(
-                                model = m.thumbUrl ?: m.url,
+                                model = m.displayUrl,
                                 contentDescription = l.title,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier.fillMaxSize(),

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kabutarbaazi.app.KabutarBaaziApp
+import com.kabutarbaazi.app.data.PushTokenRepository
 import com.kabutarbaazi.app.data.SessionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,10 @@ data class RootUiState(
     val accepting: Boolean = false,
 )
 
-class RootViewModel(private val session: SessionRepository) : ViewModel() {
+class RootViewModel(
+    private val session: SessionRepository,
+    private val pushTokens: PushTokenRepository,
+) : ViewModel() {
 
     private val _state = MutableStateFlow(RootUiState())
     val state: StateFlow<RootUiState> = _state.asStateFlow()
@@ -39,13 +43,20 @@ class RootViewModel(private val session: SessionRepository) : ViewModel() {
 
     private suspend fun loadProfile() {
         val profile = runCatching { session.currentProfile() }.getOrNull()
+        val userId = profile?.id ?: session.currentUserId()
         _state.value = RootUiState(
             loading = false,
             signedIn = session.currentUserId() != null,
             termsAccepted = profile?.hasAcceptedTerms == true,
             isAdmin = profile?.isAdmin == true,
-            userId = profile?.id ?: session.currentUserId(),
+            userId = userId,
         )
+        // Claim the FCM token for whoever is now signed in. This runs on every resolved session,
+        // not just a fresh sign-in, because the token FCM issued at install time belongs to no
+        // one until someone logs in, and a token can rotate while signed out.
+        if (userId != null) {
+            pushTokens.syncForUser(userId, profile?.locale ?: "hi")
+        }
     }
 
     fun acceptTerms() {
@@ -59,15 +70,16 @@ class RootViewModel(private val session: SessionRepository) : ViewModel() {
 
     fun signOut() = viewModelScope.launch {
         // The push token is deleted before signing out. Leaving it behind means the next person
-        // to sign in on this handset receives the previous user's chat notifications.
-        session.signOut()
+        // to sign in on this handset receives the previous user's chat notifications. signOut
+        // takes the hook for exactly this; passing nothing silently skipped the cleanup.
+        session.signOut(onBeforeSignOut = { pushTokens.unregisterCurrent() })
     }
 
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as KabutarBaaziApp
-                RootViewModel(app.container.session)
+                RootViewModel(app.container.session, app.container.pushTokens)
             }
         }
     }

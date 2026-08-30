@@ -28,16 +28,20 @@ Deno.serve(async (req) => {
       return new Response("unauthorized", { status: 401 });
     }
 
+    // Every "nothing to do" branch below answers 200, not 204. 204 is a null-body status, so
+    // `new Response("ignored", { status: 204 })` throws in Deno and the catch turns it into a
+    // 500. That made the commonest outcome of all, a recipient with no registered device, look
+    // like a server error.
     const payload = await req.json();
     const row = payload.record;
-    if (!row?.conversation_id || !row?.sender_id) return new Response("ignored", { status: 204 });
+    if (!row?.conversation_id || !row?.sender_id) return new Response("ignored", { status: 200 });
 
     const { data: conv } = await admin
       .from("conversations")
       .select("user_a, user_b")
       .eq("id", row.conversation_id)
       .single();
-    if (!conv) return new Response("no conversation", { status: 204 });
+    if (!conv) return new Response("no conversation", { status: 200 });
 
     const recipientId = conv.user_a === row.sender_id ? conv.user_b : conv.user_a;
 
@@ -50,7 +54,7 @@ Deno.serve(async (req) => {
         `and(blocker_id.eq.${recipientId},blocked_id.eq.${row.sender_id}),` +
         `and(blocker_id.eq.${row.sender_id},blocked_id.eq.${recipientId})`,
       );
-    if ((blocked ?? 0) > 0) return new Response("blocked", { status: 204 });
+    if ((blocked ?? 0) > 0) return new Response("blocked", { status: 200 });
 
     const [{ data: sender }, { data: recipient }, { data: tokens }] = await Promise.all([
       admin.from("profiles").select("display_name").eq("id", row.sender_id).single(),
@@ -58,7 +62,7 @@ Deno.serve(async (req) => {
       admin.from("device_tokens").select("token").eq("user_id", recipientId),
     ]);
 
-    if (!tokens?.length) return new Response("no devices", { status: 204 });
+    if (!tokens?.length) return new Response("no devices", { status: 200 });
 
     const locale = (recipient?.locale ?? "hi") as keyof typeof COPY;
     const { title, body } = (COPY[locale] ?? COPY.hi)(sender?.display_name ?? "KabutarBaazi");

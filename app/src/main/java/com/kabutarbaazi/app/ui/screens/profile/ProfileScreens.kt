@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.Gavel
 import androidx.compose.material.icons.outlined.Language
+import androidx.compose.material.icons.outlined.ManageAccounts
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -150,6 +151,7 @@ fun SettingsScreen(
     isAdmin: Boolean,
     onBack: () -> Unit,
     onOpenModeration: () -> Unit,
+    onOpenAccount: () -> Unit,
     onSignedOut: () -> Unit,
     onOpenLegal: (String) -> Unit,
     viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
@@ -157,10 +159,7 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var languageOpen by remember { mutableStateOf(false) }
     var blockedOpen by remember { mutableStateOf(false) }
-    var confirmDelete by remember { mutableStateOf(false) }
     var confirmSignOut by remember { mutableStateOf(false) }
-
-    LaunchedEffect(state.deleted) { if (state.deleted) onSignedOut() }
 
     Scaffold(
         topBar = {
@@ -200,13 +199,11 @@ fun SettingsScreen(
             SettingsRow(Icons.Outlined.Policy, "Privacy policy", null) { onOpenLegal("privacy") }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            // Deleting an account is irreversible, so it does not sit one tap from the tab bar
+            // next to Language. It lives behind Account, which is still the first place anyone
+            // looks and keeps it discoverable enough for Play's deletion requirement.
+            SettingsRow(Icons.Outlined.ManageAccounts, "Account", null, onClick = onOpenAccount)
             SettingsRow(Icons.AutoMirrored.Outlined.Logout, "Sign out", null) { confirmSignOut = true }
-            SettingsRow(
-                Icons.Outlined.DeleteForever,
-                "Delete my account",
-                null,
-                destructive = true,
-            ) { confirmDelete = true }
 
             Spacer(Modifier.height(40.dp))
         }
@@ -280,6 +277,70 @@ fun SettingsScreen(
             },
             dismissButton = { TextButton(onClick = { confirmSignOut = false }) { Text("Cancel") } },
         )
+    }
+
+}
+
+/**
+ * Account settings. This exists so that deleting an account takes a deliberate step off the main
+ * settings list rather than sitting beside Language, where it is one mis-tap from a keeper losing
+ * every ad and photo they have.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AccountScreen(
+    onBack: () -> Unit,
+    onSignedOut: () -> Unit,
+    viewModel: SettingsViewModel = viewModel(factory = SettingsViewModel.Factory),
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    var confirmDelete by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.deleted) { if (state.deleted) onSignedOut() }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Account") },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+            )
+        },
+    ) { inner ->
+        Column(Modifier.fillMaxSize().padding(inner).verticalScroll(rememberScrollState())) {
+            state.profile?.let { p ->
+                Column(Modifier.padding(16.dp)) {
+                    Text(p.displayName, style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "@${p.username}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            }
+
+            Text(
+                "Deleting your account removes your profile, all your ads, reels, posts, comments " +
+                    "and photos, and clears your conversations for the other person too. It cannot " +
+                    "be undone.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(16.dp),
+            )
+
+            SettingsRow(
+                Icons.Outlined.DeleteForever,
+                "Delete my account",
+                null,
+                destructive = true,
+            ) { confirmDelete = true }
+
+            Spacer(Modifier.height(40.dp))
+        }
     }
 
     if (confirmDelete) {

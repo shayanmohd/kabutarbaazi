@@ -28,7 +28,14 @@ data class Listing(
     val seller: Profile? = null,
 ) {
     val isSold: Boolean get() = status == "sold"
-    val coverUrl: String? get() = media.minByOrNull { it.position }?.let { it.thumbUrl ?: it.url }
+
+    /**
+     * A thumbnail only means something for a video, where the poster frame is a different file.
+     * For a photo the photo is its own thumbnail, and preferring thumb_url there just adds a
+     * second copy of the same URL that has to be kept in step. Reading url directly for images
+     * means a stale thumb_url can never outrank the picture the listing actually points at.
+     */
+    val coverUrl: String? get() = media.minByOrNull { it.position }?.displayUrl
 }
 
 @Serializable
@@ -44,6 +51,9 @@ data class ListingMedia(
     val position: Int = 0,
 ) {
     val isVideo: Boolean get() = kind == "video"
+
+    /** What to actually render for this item. See Listing.coverUrl for why images ignore thumbUrl. */
+    val displayUrl: String get() = if (isVideo) thumbUrl ?: url else url
 }
 
 /** What the create-listing form produces. Server-defaulted columns are deliberately absent. */
