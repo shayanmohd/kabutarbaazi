@@ -7,9 +7,8 @@ Submitted to Google Play production. This file is the record of what was declare
 - Developer id: `8128457256815350105`
 - App id: `4974765176529395168`
 - Package: `com.socialsure.kabutarbaazi` (permanent, claimed)
-- Status: **Submitted for review** on 2026-08-30. `submitState().inReview == true`,
-  page reads "Your changes are now in review." Managed publishing is **off**, so an
-  approved release goes live automatically. Review typically takes up to 7 days.
+- Status: **1.0.0 live since 2026-08-30.** 1.0.1 rejected 2026-09-04 (reviewer credentials no longer
+  worked), fixed and resubmitted 2026-09-13; in review.
 
 ## Done
 
@@ -18,7 +17,7 @@ App content, 10 of 10:
 | Declaration | Answer |
 |---|---|
 | Privacy policy | https://shayanmohd.github.io/kabutarbaazi/privacy-policy.html |
-| App access | Restricted. Reviewer credentials `demo_reviewer` / `KabutarDemo2026` |
+| App access | Restricted. Two credential sets: `demo_reviewer` for the review, `demo_deletetest` for testing deletion (passwords in the gitignored `docs/PLAY-APP-ACCESS.md`) |
 | Ads | Contains no ads |
 | Content rating | IARC complete: Teen / 12+ / Parental guidance, "Users Interact" |
 | Target audience | 18 and over only (keeps the app out of Families policy) |
@@ -82,3 +81,18 @@ mislabelled bird immediately.
   a live "Submit 11 changes for review".
 - `PC.boot()` state does not survive a heredoc. Skipping it builds
   `developers/null/app/null`, which redirects and looks like a broken page.
+
+## 2026-09-04 rejection: "Login credentials are incorrect"
+
+The declared credentials were typed correctly; the account behind them no longer existed.
+`username_available('demo_reviewer')` returned true while `imranq` and `salman_kbz` were intact,
+so `demo_reviewer` alone had been deleted between the 1.0.0 approval and the 1.0.1 review. Google
+says reviewers cannot create accounts, and they test account deletion with what they are given.
+
+Fix applied: recreated `demo_reviewer` with the same password, added a second set named
+"Account deletion test" (`demo_deletetest`) whose instructions say deleting it is expected, and
+told the main set not to be deleted. Both were signed into through the 1.0.1 release build before
+resubmitting.
+
+**Before any future submission, sign in with both accounts.** A deleted reviewer account costs a
+full review cycle and is invisible from the console until the rejection arrives.
