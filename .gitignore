@@ -28,3 +28,6 @@ supabase/.env.local
 # Emulator screenshots and scratch
 /store/screenshots/*.png.bak
 docs/PLAY-APP-ACCESS.md
+
+# Release AABs, APKs and R8 mapping files kept per version (mapping.txt is ~70 MB).
+/release-artifacts/

@@ -45,8 +45,8 @@ android {
         // minSdk 26 is the floor for supabase-kt, and covers ~97% of the Indian install base.
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        versionCode = 3
+        versionName = "1.0.2"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "SUPABASE_URL", "\"${localOr("SUPABASE_URL", "")}\"")
@@ -71,12 +71,12 @@ android {
 
     buildTypes {
         release {
-            // Minification is deliberately off for the first production build. Supabase DTOs are
-            // kotlinx-serialization reflective and R8 keep-rules for them are easy to get subtly
-            // wrong; this gets enabled as a hardening step once rules are verified against a
-            // real release install.
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8 full mode. Supabase decodes through kotlinx-serialization's serializer(KType)
+            // lookup, which reaches each @Serializable class's Companion.serializer() by
+            // reflection; proguard-rules.pro says which library ships each rule. mapping.txt lands
+            // in app/build/outputs/mapping/release/ and is packed into the AAB for Play.
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             if (hasSigningConfig) {
                 signingConfig = signingConfigs.getByName("release")
