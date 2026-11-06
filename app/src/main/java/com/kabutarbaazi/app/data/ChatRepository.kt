@@ -9,14 +9,20 @@ import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
+import io.github.jan.supabase.postgrest.query.filter.FilterOperator
 import io.github.jan.supabase.realtime.PostgresAction
 import io.github.jan.supabase.realtime.channel
 import io.github.jan.supabase.realtime.postgresChangeFlow
 import io.github.jan.supabase.realtime.realtime
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import java.util.UUID
 
 class ChatRepository(private val client: SupabaseClient) {
 
@@ -60,7 +66,8 @@ class ChatRepository(private val client: SupabaseClient) {
             order("created_at", Order.ASCENDING)
         }.decodeList()
 
-    suspend fun send(conversationId: String, senderId: String, body: String, clientId: String) {
+    /** Returns the stored row, so the sender's bubble settles without waiting for Realtime. */
+    suspend fun send(conversationId: String, senderId: String, body: String, clientId: String): Message =
         client.from("messages").insert(
             NewMessage(
                 conversationId = conversationId,
@@ -68,8 +75,10 @@ class ChatRepository(private val client: SupabaseClient) {
                 body = body,
                 clientId = clientId,
             ),
-        )
-    }
+        ) { select() }.decodeSingle()
+
+    suspend fun conversation(conversationId: String): Conversation? =
+        client.from("conversations").select { filter { eq("id", conversationId) } }.decodeSingleOrNull()
 
     suspend fun markRead(conversationId: String) {
         client.postgrest.rpc(
@@ -79,22 +88,29 @@ class ChatRepository(private val client: SupabaseClient) {
     }
 
     /**
-     * Live inserts for one open thread. The caller must collect this inside the screen's scope;
-     * unsubscribing happens when that scope is cancelled.
+     * Live inserts for one open thread, for as long as the caller collects.
+     *
+     * Order matters. The filter is registered on the channel first, because the join message is
+     * what tells the server which rows to stream, and supabase-kt refuses postgresChangeFlow on a
+     * channel that has already joined. Only then is the channel subscribed.
+     *
+     * Every collection gets its own channel name and removes that channel when cancelled.
+     * supabase-kt hands back the existing channel for a name it already knows, so a shared name
+     * would give a reopened thread the old, already joined channel, and the old screen's leave
+     * could tear down the new screen's subscription.
      */
-    fun liveMessages(conversationId: String): Flow<Message> {
-        val channel = client.realtime.channel("chat:$conversationId")
-        return channel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
+    fun liveMessages(conversationId: String): Flow<Message> = flow {
+        val realtime = client.realtime
+        val channel = realtime.channel("chat:$conversationId:${UUID.randomUUID()}")
+        val inserts = channel.postgresChangeFlow<PostgresAction.Insert>(schema = "public") {
             table = "messages"
-            filter("conversation_id", io.github.jan.supabase.postgrest.query.filter.FilterOperator.EQ, conversationId)
-        }.map { SupabaseFactory.json.decodeFromJsonElement(Message.serializer(), it.record) }
-    }
-
-    suspend fun subscribe(conversationId: String) {
-        client.realtime.channel("chat:$conversationId").subscribe()
-    }
-
-    suspend fun unsubscribe(conversationId: String) {
-        client.realtime.channel("chat:$conversationId").unsubscribe()
+            filter("conversation_id", FilterOperator.EQ, conversationId)
+        }
+        try {
+            channel.subscribe()
+            emitAll(inserts.map { SupabaseFactory.json.decodeFromJsonElement(Message.serializer(), it.record) })
+        } finally {
+            withContext(NonCancellable) { realtime.removeChannel(channel) }
+        }
     }
 }

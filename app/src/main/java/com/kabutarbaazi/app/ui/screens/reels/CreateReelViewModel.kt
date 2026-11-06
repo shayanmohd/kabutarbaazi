@@ -2,6 +2,7 @@ package com.kabutarbaazi.app.ui.screens.reels
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -20,6 +21,7 @@ import com.kabutarbaazi.domain.media.MediaKind
 import com.kabutarbaazi.domain.media.MediaRejection
 import com.kabutarbaazi.domain.model.NewReel
 import com.kabutarbaazi.domain.moderation.ModerationRules
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,6 +40,25 @@ data class CreateReelUiState(
     val error: String? = null,
 ) {
     val canSubmit: Boolean get() = !submitting && videoUri != null
+}
+
+/**
+ * What the user reads when a reel fails. It names the step and the first line of the cause, so a
+ * failure can be told apart from the screen (or a screenshot) instead of reading the same
+ * "please try again" for every cause.
+ */
+internal fun reelUploadError(step: String, e: Throwable): String {
+    val message = e.message.orEmpty()
+    return when {
+        "TooLarge" in message || "too_large" in message ->
+            "That video is still too big after compressing. Try a shorter clip."
+        "rate_limited" in message -> "Too many uploads just now. Please wait a few minutes."
+        else -> {
+            val cause = message.lineSequence().firstOrNull()?.trim()?.take(120)
+                ?.takeIf { it.isNotEmpty() } ?: e.javaClass.simpleName
+            "Could not upload the reel while $step ($cause). Please try again."
+        }
+    }
 }
 
 @UnstableApi
@@ -95,10 +116,12 @@ class CreateReelViewModel(
 
         _state.update { it.copy(submitting = true, error = null, progress = 0f) }
         viewModelScope.launch {
+            var step = "reading the video"
             runCatching {
                 val uploadId = UUID.randomUUID().toString()
                 val info = VideoThumbnailer.probe(context, uri)
 
+                step = "compressing"
                 _state.update { it.copy(stage = "Compressing video...") }
                 val compressed = VideoCompressor.compress(
                     context = context,
@@ -113,9 +136,11 @@ class CreateReelViewModel(
                     MediaKind.ReelVideo, compressed.file.length(), compressed.durationMs,
                 )?.let { error("media_rejected:$it") }
 
+                step = "making the thumbnail"
                 _state.update { it.copy(stage = "Making thumbnail...") }
                 val thumbFile = VideoThumbnailer.thumbnail(context, uri, "reel_${uploadId}_thumb.webp")
 
+                step = "uploading"
                 _state.update { it.copy(stage = "Uploading...") }
                 val videoUrl = media.upload(
                     file = compressed.file,
@@ -131,6 +156,7 @@ class CreateReelViewModel(
                 compressed.file.delete()
                 thumbFile.delete()
 
+                step = "saving"
                 reels.create(
                     NewReel(
                         authorId = authorId,
@@ -149,23 +175,18 @@ class CreateReelViewModel(
                 _state.update { it.copy(submitting = false, progress = 1f, stage = null) }
                 onCreated()
             }.onFailure { e ->
+                if (e is CancellationException) throw e
+                Log.e(TAG, "Reel upload failed while $step", e)
                 _state.update {
-                    it.copy(
-                        submitting = false, stage = null,
-                        error = when {
-                            "TooLarge" in e.message.orEmpty() ->
-                                "That video is still too big after compressing. Try a shorter clip."
-                            "rate_limited" in e.message.orEmpty() ->
-                                "Too many uploads just now. Please wait a few minutes."
-                            else -> "Could not upload the reel. Please try again."
-                        },
-                    )
+                    it.copy(submitting = false, stage = null, error = reelUploadError(step, e))
                 }
             }
         }
     }
 
     companion object {
+        private const val TAG = "CreateReel"
+
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as KabutarBaaziApp

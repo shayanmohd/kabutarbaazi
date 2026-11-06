@@ -1,5 +1,6 @@
 package com.kabutarbaazi.app.ui.screens.chat
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -17,6 +18,7 @@ import com.kabutarbaazi.domain.model.Message
 import com.kabutarbaazi.domain.model.PendingMessage
 import com.kabutarbaazi.domain.model.Profile
 import com.kabutarbaazi.domain.model.SendStatus
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -107,9 +109,27 @@ internal fun String.normalizeIso(): String {
 
 // ---------------------------------------------------------------------------------------------
 
+/**
+ * Adds messages that arrived from any source (initial load, Realtime, the insert's own reply,
+ * a backfill), skipping ids already shown, and settles the optimistic bubble whose client_id
+ * each one carries.
+ */
+internal fun ChatUiState.withArrived(arrived: List<Message>): ChatUiState {
+    val known = messages.map { it.id }.toMutableSet()
+    val fresh = arrived.filter { known.add(it.id) }
+    val settled = arrived.map { it.clientId }.toSet()
+    return copy(
+        messages = (messages + fresh).sortedBy { it.createdAt.toEpochMsOrZero() },
+        pending = pending.filterNot { it.clientId in settled },
+    )
+}
+
 data class ChatUiState(
     val messages: List<Message> = emptyList(),
     val pending: List<PendingMessage> = emptyList(),
+    /** The other participant, read from the conversation row itself. */
+    val counterpartId: String? = null,
+    /** Null when the profile is not visible, for example after a block. */
     val counterpart: Profile? = null,
     val loading: Boolean = true,
     val draft: String = "",
@@ -135,8 +155,8 @@ class ChatViewModel(
     }
 
     override fun onCleared() {
+        // The live channel is torn down by the cancellation of viewModelScope (see liveMessages).
         container.openConversationId = null
-        viewModelScope.launch { runCatching { chat.unsubscribe(conversationId) } }
         super.onCleared()
     }
 
@@ -145,9 +165,25 @@ class ChatViewModel(
     fun load() {
         viewModelScope.launch {
             runCatching { chat.messages(conversationId) }
-                .onSuccess { msgs -> _state.update { it.copy(messages = msgs, loading = false) } }
+                .onSuccess { msgs -> _state.update { it.withArrived(msgs).copy(loading = false, error = null) } }
                 .onFailure { _state.update { it.copy(loading = false, error = "Could not load messages.") } }
             runCatching { chat.markRead(conversationId) }
+        }
+        if (_state.value.counterpartId == null) loadCounterpart()
+    }
+
+    private fun loadCounterpart() {
+        viewModelScope.launch {
+            runCatching {
+                val me = session.currentUserId() ?: return@runCatching
+                val c = chat.conversation(conversationId) ?: return@runCatching
+                val otherId = ConversationKey.counterpart(ConversationKey.Pair(c.userA, c.userB), me)
+                _state.update { it.copy(counterpartId = otherId) }
+                // Empty when RLS hides the profile, which is fine: the id is what Block needs.
+                chat.counterparts(listOf(otherId))[otherId]?.let { p ->
+                    _state.update { it.copy(counterpart = p) }
+                }
+            }.onFailure { Log.w(TAG, "Could not load the other participant", it) }
         }
     }
 
@@ -156,33 +192,23 @@ class ChatViewModel(
         viewModelScope.launch {
             val newest = _state.value.messages.lastOrNull()?.createdAt ?: return@launch
             runCatching { chat.messagesSince(conversationId, newest) }
-                .onSuccess { extra ->
-                    if (extra.isNotEmpty()) {
-                        _state.update { s ->
-                            val known = s.messages.map { it.id }.toSet()
-                            s.copy(messages = s.messages + extra.filter { it.id !in known })
-                        }
-                    }
-                }
+                .onSuccess { extra -> if (extra.isNotEmpty()) _state.update { it.withArrived(extra) } }
             runCatching { chat.markRead(conversationId) }
         }
     }
 
     private fun observeLive() {
         viewModelScope.launch {
-            runCatching { chat.subscribe(conversationId) }
-            runCatching {
+            try {
                 chat.liveMessages(conversationId).collect { msg ->
-                    _state.update { s ->
-                        // Dedupe the echo of our own insert by client_id.
-                        if (s.messages.any { it.id == msg.id }) s
-                        else s.copy(
-                            messages = s.messages + msg,
-                            pending = s.pending.filterNot { it.clientId == msg.clientId },
-                        )
-                    }
+                    _state.update { it.withArrived(listOf(msg)) }
                     runCatching { chat.markRead(conversationId) }
                 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Not fatal: sends still land and the resume backfill still fetches replies.
+                Log.w(TAG, "Live chat updates stopped", e)
             }
         }
     }
@@ -200,6 +226,7 @@ class ChatViewModel(
         }
         viewModelScope.launch {
             runCatching { chat.send(conversationId, me, body, clientId) }
+                .onSuccess { stored -> _state.update { it.withArrived(listOf(stored)) } }
                 .onFailure {
                     _state.update { s ->
                         s.copy(pending = s.pending.map { p ->
@@ -220,6 +247,7 @@ class ChatViewModel(
             // Same client_id: the unique constraint makes the retry a no-op if the first
             // attempt actually landed.
             runCatching { chat.send(conversationId, me, p.body, clientId) }
+                .onSuccess { stored -> _state.update { it.withArrived(listOf(stored)) } }
                 .onFailure {
                     _state.update { s ->
                         s.copy(pending = s.pending.map {
@@ -230,12 +258,24 @@ class ChatViewModel(
         }
     }
 
-    fun blockCounterpart(otherId: String, onDone: () -> Unit) = viewModelScope.launch {
+    fun blockCounterpart(onDone: () -> Unit) = viewModelScope.launch {
         val me = session.currentUserId() ?: return@launch
-        runCatching { moderation.block(me, otherId) }.onSuccess { onDone() }
+        val otherId = _state.value.counterpartId
+        if (otherId == null) {
+            _state.update { it.copy(error = "Could not block right now. Please try again.") }
+            return@launch
+        }
+        runCatching { moderation.block(me, otherId) }
+            .onSuccess { onDone() }
+            .onFailure { e ->
+                Log.w(TAG, "Block failed", e)
+                _state.update { it.copy(error = "Could not block right now. Please try again.") }
+            }
     }
 
     companion object {
+        private const val TAG = "ChatViewModel"
+
         fun factory(conversationId: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {
                 val app = this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as KabutarBaaziApp

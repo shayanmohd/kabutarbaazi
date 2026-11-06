@@ -45,8 +45,8 @@ android {
         // minSdk 26 is the floor for supabase-kt, and covers ~97% of the Indian install base.
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
         vectorDrawables.useSupportLibrary = true
 
         buildConfigField("String", "SUPABASE_URL", "\"${localOr("SUPABASE_URL", "")}\"")
@@ -98,6 +98,10 @@ android {
     }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+    }
+    testOptions {
+        // supabase-kt and AppContainer touch a few android.* stubs (Log, Context) on the JVM.
+        unitTests.isReturnDefaultValues = true
     }
 }
 
@@ -154,4 +158,7 @@ dependencies {
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
+    // ViewModel and repository tests run the real supabase-kt client against a Ktor MockEngine
+    // and an in-memory Realtime socket, so the library's own rules are what the tests exercise.
+    testImplementation(libs.ktor.client.mock)
 }

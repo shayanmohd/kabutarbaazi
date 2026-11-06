@@ -164,15 +164,19 @@ fun KabutarRoot(
                     }
                 }
             } else {
-                Overlay(
-                    route = route,
-                    language = language,
-                    currentUserId = currentUserId,
-                    isAdmin = isAdmin,
-                    onClose = { overlayRoute = null },
-                    onNavigate = { overlayRoute = it },
-                    onSignedOut = onSignOut,
-                )
+                // One ViewModelStore per route: listing A and listing B, or one chat and the
+                // next, must not share a ViewModel, and leaving a route clears its ViewModels.
+                ScopedViewModels(scope = route) {
+                    Overlay(
+                        route = route,
+                        language = language,
+                        currentUserId = currentUserId,
+                        isAdmin = isAdmin,
+                        onClose = { overlayRoute = null },
+                        onNavigate = { overlayRoute = it },
+                        onSignedOut = onSignOut,
+                    )
+                }
             }
         }
     }
@@ -231,8 +235,6 @@ private fun Overlay(
         route.startsWith("chat/") -> ChatScreen(
             conversationId = route.removePrefix("chat/"),
             currentUserId = currentUserId,
-            counterpartName = "Chat",
-            counterpartId = "",
             onBack = onClose,
         )
         route.startsWith("profile/") -> ProfileScreen(

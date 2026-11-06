@@ -252,7 +252,18 @@ fun SettingsScreen(
                                 Modifier.fillMaxWidth().padding(vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text("@${p.username}", Modifier.weight(1f))
+                                // A block hides the profile from both sides, so there is no name
+                                // to show here; the date tells two blocks apart.
+                                Column(Modifier.weight(1f)) {
+                                    Text("Blocked person")
+                                    p.blockedAt?.take(10)?.let {
+                                        Text(
+                                            "Since $it",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
                                 TextButton(onClick = { viewModel.unblock(p.id) }) { Text("Unblock") }
                             }
                         }

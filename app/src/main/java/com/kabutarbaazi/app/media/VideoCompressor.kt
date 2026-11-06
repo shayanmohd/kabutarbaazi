@@ -95,10 +95,7 @@ object VideoCompressor {
             awaitExport(transformer, composition, output.absolutePath, onProgress)
         }
 
-        // Read the dimensions back from the export rather than assuming the target: portrait
-        // video carries rotation metadata, and guessing here makes every thumbnail sideways.
-        val width = result.width.takeIf { it > 0 } ?: target.width
-        val height = result.height.takeIf { it > 0 } ?: target.height
+        val (width, height) = displaySize(result.width, result.height, target.width, target.height)
 
         return Result(
             file = output,
@@ -106,6 +103,20 @@ object VideoCompressor {
             height = height,
             durationMs = result.durationMs.toInt().coerceAtLeast(0),
         )
+    }
+
+    /**
+     * The size the reel is shown at. Transformer reports the encoded (stored) size, and for a
+     * portrait clip it often encodes 1280x720 with a 90 degree rotation flag, so the raw numbers
+     * read as landscape. The target is already in display orientation (the probe applied the
+     * source rotation), so the export's sides are put in the target's orientation.
+     */
+    internal fun displaySize(exportWidth: Int, exportHeight: Int, targetWidth: Int, targetHeight: Int): Pair<Int, Int> {
+        if (exportWidth <= 0 || exportHeight <= 0) return targetWidth to targetHeight
+        val portrait = targetHeight >= targetWidth
+        val long = maxOf(exportWidth, exportHeight)
+        val short = minOf(exportWidth, exportHeight)
+        return if (portrait) short to long else long to short
     }
 
     private suspend fun awaitExport(

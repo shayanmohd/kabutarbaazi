@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.kabutarbaazi.app.KabutarBaaziApp
 import com.kabutarbaazi.app.data.AppContainer
+import com.kabutarbaazi.app.data.ModerationRepository
 import com.kabutarbaazi.domain.model.Listing
 import com.kabutarbaazi.domain.model.Profile
 import com.kabutarbaazi.domain.model.Reel
@@ -98,7 +99,7 @@ class ProfileViewModel(
 
 data class SettingsUiState(
     val profile: Profile? = null,
-    val blocked: List<Profile> = emptyList(),
+    val blocked: List<ModerationRepository.BlockedPerson> = emptyList(),
     val language: String = "en",
     val deleting: Boolean = false,
     val deleted: Boolean = false,
@@ -116,7 +117,7 @@ class SettingsViewModel(private val container: AppContainer) : ViewModel() {
         runCatching {
             val me = container.session.currentUserId()
             val p = container.session.currentProfile()
-            val b = me?.let { container.moderation.blockedProfiles(it) }.orEmpty()
+            val b = me?.let { container.moderation.blockedPeople(it) }.orEmpty()
             p to b
         }.onSuccess { (p, b) ->
             _state.update { it.copy(profile = p, blocked = b) }

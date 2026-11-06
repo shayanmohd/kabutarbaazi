@@ -78,40 +78,49 @@ fun CreateReelScreen(
                 .imePadding()
                 .padding(horizontal = 16.dp),
         ) {
+            // The preview takes whatever height is left after the caption and the button, and
+            // keeps 9:16 inside it. A full-width 9:16 box is taller than a 20:9 screen allows,
+            // and pushed the Share button off the bottom of a column that does not scroll.
             Box(
                 Modifier
+                    .weight(1f)
                     .fillMaxWidth()
-                    .aspectRatio(9f / 16f)
-                    .padding(top = 8.dp)
-                    .clip(InnerShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable {
-                        picker.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly),
-                        )
-                    },
+                    .padding(top = 8.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                if (state.videoUri != null) {
-                    AsyncImage(
-                        model = state.videoUri,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Outlined.VideoLibrary, contentDescription = null, modifier = Modifier.size(34.dp))
-                        Text(
-                            "Video chunein",
-                            style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(top = 8.dp),
+                Box(
+                    Modifier
+                        .aspectRatio(9f / 16f, matchHeightConstraintsFirst = true)
+                        .clip(InnerShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable {
+                            picker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly),
+                            )
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (state.videoUri != null) {
+                        AsyncImage(
+                            model = state.videoUri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize(),
                         )
-                        Text(
-                            "Up to 60 seconds",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Outlined.VideoLibrary, contentDescription = null, modifier = Modifier.size(34.dp))
+                            Text(
+                                "Video chunein",
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.padding(top = 8.dp),
+                            )
+                            Text(
+                                "Up to 60 seconds",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }

@@ -126,8 +126,6 @@ fun ConversationsScreen(
 fun ChatScreen(
     conversationId: String,
     currentUserId: String,
-    counterpartName: String,
-    counterpartId: String,
     onBack: () -> Unit,
     viewModel: ChatViewModel = viewModel(factory = ChatViewModel.factory(conversationId)),
 ) {
@@ -154,7 +152,7 @@ fun ChatScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(counterpartName) },
+                title = { Text(state.counterpart?.displayName ?: "Chat") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -170,7 +168,7 @@ fun ChatScreen(
                                 text = { Text("Block this person") },
                                 onClick = {
                                     menuOpen = false
-                                    viewModel.blockCounterpart(counterpartId, onBack)
+                                    viewModel.blockCounterpart(onBack)
                                 },
                             )
                         }

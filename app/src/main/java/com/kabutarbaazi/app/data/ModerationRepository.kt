@@ -1,6 +1,5 @@
 package com.kabutarbaazi.app.data
 
-import com.kabutarbaazi.domain.model.Profile
 import com.kabutarbaazi.domain.model.ReportReason
 import com.kabutarbaazi.domain.model.ReportTargetType
 import io.github.jan.supabase.SupabaseClient
@@ -47,15 +46,18 @@ class ModerationRepository(private val client: SupabaseClient) {
         }
     }
 
-    suspend fun blockedProfiles(userId: String): List<Profile> {
-        val ids = client.from("blocks").select(Columns.raw("blocked_id")) {
+    /**
+     * The people [userId] has blocked, newest first, read from the blocker's own block rows.
+     *
+     * Only the rows: a block hides the two profiles from each other in both directions
+     * (is_blocked_with in RLS), so a profiles lookup returns nothing for exactly these people.
+     * The list shows a neutral label and the date instead of a name.
+     */
+    suspend fun blockedPeople(userId: String): List<BlockedPerson> =
+        client.from("blocks").select(Columns.raw("blocked_id,created_at")) {
             filter { eq("blocker_id", userId) }
-        }.decodeList<BlockRow>().map { it.blockedId }
-        if (ids.isEmpty()) return emptyList()
-        // Blocked profiles are invisible under the normal policy, so they are fetched by id
-        // through the blocker's own block rows.
-        return client.from("profiles").select { filter { isIn("id", ids) } }.decodeList()
-    }
+            order("created_at", Order.DESCENDING)
+        }.decodeList<BlockRow>().map { BlockedPerson(it.blockedId, it.createdAt) }
 
     // -- admin ------------------------------------------------------------------------------
 
@@ -98,7 +100,12 @@ class ModerationRepository(private val client: SupabaseClient) {
     }
 
     @Serializable
-    private data class BlockRow(@SerialName("blocked_id") val blockedId: String)
+    private data class BlockRow(
+        @SerialName("blocked_id") val blockedId: String,
+        @SerialName("created_at") val createdAt: String? = null,
+    )
+
+    data class BlockedPerson(val id: String, val blockedAt: String?)
 
     @Serializable
     data class ReportRow(
